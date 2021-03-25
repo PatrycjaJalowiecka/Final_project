@@ -1,4 +1,4 @@
-from blog import db
+from . import db
 import datetime
 
 class Entry(db.Model):
