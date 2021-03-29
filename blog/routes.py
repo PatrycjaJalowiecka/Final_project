@@ -4,96 +4,25 @@ from blog.models import Entry, db
 from blog.forms import EntryForm, LoginForm, ContactForm
 from blog.functools import login_required
 
-##def create_edit(entry_id):
-  ##  form = EntryForm(None)
-    ##entry = Entry.query.filter_by(id=entry_id).first_or_404()
-    ##errors = None
-    ##if request.method == 'POST':
-      ##  if form.validate_on_submit():
-        ##    if entry_id == None:
-          ##      entry = Entry(title=form.title.data,body=form.body.data, is_published=form.is_published.data)
-            ##    db.session.add(entry)
-              ##  db.session.commit()
-            ##else:
-              ##  form.populate_obj(entry)
-                ##db.session.commit()
-       ## else:
-         ##   errors = form.errors
-    ##return render_template("entry_form.html", form=form, errors=errors)
-
-def create_edit(entry_id=None):
-    form = EntryForm(None)
-    ##entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
-    errors = None
+'''def create_edit(entry_id=None, entry=None):
+    form = EntryForm()
+    errors = None 
     if request.method == 'POST':
         if form.validate_on_submit():
-            if entry_id is None:
-                form = EntryForm()
+            if entry_id == None:
                 entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
-                if is_published == True:
-                    db.session.add(entry)
-                    flash('Dodano nowy wpis')
-                    return redirect("/")
-                else:
-                    db.session.add(entry)
-                    flash("Szkic wpisu zapisany")
-            else:
-                form = EntryForm(obj=entry_id)
-                entry = Entry.query.filter_by(id=entry_id).first_or_404()
-                form.populate_obj(entry)
-                flash('Wpis zaktualizowany')
+                db.session.add(entry)
                 db.session.commit()
-                ##return redirect("/")
-            return None
-        else:
-            errors = form.errors 
-    return render_template("entry_form.html", form=form, errors=errors)
-
-
-"""def create_edit(entry_id=None):
-    form = EntryForm(obj=entry)
-    entry = 
-    errors = None
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            if entry_id is None:
-                entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
-                if is_published == True:
-                    db.session.add(entry)
-                    flash('Dodano nowy wpis')
-                    ##return redirect("/")
-                else:
-                    db.session.add(entry)
-                    flash("Szkic wpisu zapisany")
-            else:
+                flash('Dodano nowy post')
+            else:  
                 entry = Entry.query.filter_by(id=entry_id).first_or_404()
+                form = EntryForm(obj=entry)
                 form.populate_obj(entry)
-                flash('Wpis zaktualizowany')
                 db.session.commit()
-                ##return redirect("/")
-            return None
+                flash('Zaktualizowano post')
         else:
-            errors = form.errors 
-    return render_template("entry_form.html", form=form, errors=errors)"""
-
-##def create_edit(form, entry_id=None):
-  ##  form = EntryForm()
-    ##errors = None
-   ## if entry_id == None:
-     ##   if form.validate_on_submit():
-       ##     entry = Entry(entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
-         ##   db.session.add(entry)
-           ## db.session.commit()
-        ##else:
-          ##  errors = form.errors
-    ##else: 
-      ##  if form.validate_on_submit():
-        ##    entry = Entry.query.filter_by(id=entry_id).first_or_404()
-          ##  form.populate_obj(entry)
-            ##db.session.commit()
-        ##else:
-          ##  errors = form.errors
-    ##return render_template("entry_form.html", form=form, errors=errors)
+            errors = form.errors
+    return render_template("entry_form.html", form=form, errors=errors)'''
 
 
 @app.route("/")
@@ -104,12 +33,35 @@ def index():
 @app.route("/new/", methods=["GET", "POST"])
 @login_required
 def create_entry():
-    return create_edit(None)
+  ##  return create_edit(None)
+    form = EntryForm()
+    errors = None
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
+            db.session.add(entry)
+            db.session.commit()
+        else:
+            errors = form.errors
+    return render_template("entry_form.html", form=form, errors=errors)
 
 @app.route("/edit/<int:entry_id>", methods=["GET", "POST"])
 @login_required 
 def edit_entry(entry_id):
-    return create_edit(entry_id)
+  ##  return create_edit(entry_id)
+    entry = Entry.query.filter_by(id=entry_id).first_or_404()
+    form = EntryForm(obj=entry)
+    errors = None
+    if request.method == "POST":
+        if form.validate_on_submit():
+            form.populate_obj(entry)
+            db.session.commit()
+            flash("Twój wpis został zmieniony", "info")
+            return redirect("/")
+        else:
+            errors = form.errors
+    return render_template("entry_form.html", form=form, errors=errors)
+
 
 @app.route("/login/", methods=["GET", "POST"])
 def login():
