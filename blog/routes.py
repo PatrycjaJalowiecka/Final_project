@@ -4,66 +4,112 @@ from blog.models import Entry, db
 from blog.forms import EntryForm, LoginForm, ContactForm
 from blog.functools import login_required
 
+##def create_edit(entry_id):
+  ##  form = EntryForm(None)
+    ##entry = Entry.query.filter_by(id=entry_id).first_or_404()
+    ##errors = None
+    ##if request.method == 'POST':
+      ##  if form.validate_on_submit():
+        ##    if entry_id == None:
+          ##      entry = Entry(title=form.title.data,body=form.body.data, is_published=form.is_published.data)
+            ##    db.session.add(entry)
+              ##  db.session.commit()
+            ##else:
+              ##  form.populate_obj(entry)
+                ##db.session.commit()
+       ## else:
+         ##   errors = form.errors
+    ##return render_template("entry_form.html", form=form, errors=errors)
+
+def create_edit(entry_id=None):
+    form = EntryForm(None)
+    ##entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
+    errors = None
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            if entry_id is None:
+                form = EntryForm()
+                entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
+                if is_published == True:
+                    db.session.add(entry)
+                    flash('Dodano nowy wpis')
+                    return redirect("/")
+                else:
+                    db.session.add(entry)
+                    flash("Szkic wpisu zapisany")
+            else:
+                form = EntryForm(obj=entry_id)
+                entry = Entry.query.filter_by(id=entry_id).first_or_404()
+                form.populate_obj(entry)
+                flash('Wpis zaktualizowany')
+                db.session.commit()
+                ##return redirect("/")
+            return None
+        else:
+            errors = form.errors 
+    return render_template("entry_form.html", form=form, errors=errors)
+
+
+"""def create_edit(entry_id=None):
+    form = EntryForm(obj=entry)
+    entry = 
+    errors = None
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            if entry_id is None:
+                entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
+                if is_published == True:
+                    db.session.add(entry)
+                    flash('Dodano nowy wpis')
+                    ##return redirect("/")
+                else:
+                    db.session.add(entry)
+                    flash("Szkic wpisu zapisany")
+            else:
+                entry = Entry.query.filter_by(id=entry_id).first_or_404()
+                form.populate_obj(entry)
+                flash('Wpis zaktualizowany')
+                db.session.commit()
+                ##return redirect("/")
+            return None
+        else:
+            errors = form.errors 
+    return render_template("entry_form.html", form=form, errors=errors)"""
+
+##def create_edit(form, entry_id=None):
+  ##  form = EntryForm()
+    ##errors = None
+   ## if entry_id == None:
+     ##   if form.validate_on_submit():
+       ##     entry = Entry(entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
+         ##   db.session.add(entry)
+           ## db.session.commit()
+        ##else:
+          ##  errors = form.errors
+    ##else: 
+      ##  if form.validate_on_submit():
+        ##    entry = Entry.query.filter_by(id=entry_id).first_or_404()
+          ##  form.populate_obj(entry)
+            ##db.session.commit()
+        ##else:
+          ##  errors = form.errors
+    ##return render_template("entry_form.html", form=form, errors=errors)
+
 
 @app.route("/")
 def index():
     all_posts = Entry.query.filter_by(is_published=True).order_by(Entry.pub_date.desc())
-
-
     return render_template("homepage.html", all_posts=all_posts)
-
-
-##def create_or_edit(form, entry_id=None):
-##@login_required
-    ##if form.validate_on_submit():
-        ##if entry_id is None:
-            ##entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
-            ##is_published = form.is_published.data
-            ##if is_published == True:
-              ##  db.session.add(entry)
-                ##flash('Dodano nowy wpis')
-            ##else is_published == False:
-              ##  db.session.add(entry)
-                ##flash("Szkic wpisu zapisany")
-        ##else:
-          ##  entry = Entry.query.filter_by(id=entry_id).first_or_404()
-            ##form.populate_obj(entry)
-            ##flash('Wpis zaktualizowany')
-        ##db.session.commit()
-       ## return None
-    ##else:
-      ##  return redirect(url_for('index', errors=errors))
- 
 
 @app.route("/new/", methods=["GET", "POST"])
 @login_required
 def create_entry():
-   form = EntryForm()
-   errors = None
-   if request.method == 'POST':
-       if form.validate_on_submit():
-           entry = Entry(title=form.title.data, body=form.body.data, is_published=form.is_published.data)
-           db.session.add(entry)
-           db.session.commit()
-       else:
-           errors = form.errors
-   return render_template("entry_form.html", form=form, errors=errors)
+    return create_edit(None)
 
 @app.route("/edit/<int:entry_id>", methods=["GET", "POST"])
 @login_required 
 def edit_entry(entry_id):
-    entry = Entry.query.filter_by(id=entry_id).first_or_404()
-    form = EntryForm(obj=entry)
-    errors = None
-    if request.method == "POST":
-        if form.validate_on_submit():
-            form.populate_obj(entry)
-            db.session.commit()
-            flash("Twój wpis został zmieniony", "info")
-            return redirect("/")
-        else:
-            errors = form.errors
-    return render_template("entry_form.html", form=form, errors=errors)
+    return create_edit(entry_id)
 
 @app.route("/login/", methods=["GET", "POST"])
 def login():
@@ -136,6 +182,4 @@ def contact():
                 print(f"error", e.body)
     return render_template("/contact_form.html")
 
-    
-##if __name__ == "__main__":
-  ##  app.run(debug=True)
+ 
